@@ -1,0 +1,54 @@
+site_name: OWI Metadatabase Soil Extension
+site_description: soil extension for OWI Metadatabase SDK
+site_author: OWI-Lab
+site_url: https://owi-lab.github.io/owi-metadatabase-soil/
+repo_url: https://github.com/OWI-Lab/owi-metadatabase-soil
+repo_name: OWI-Lab/owi-metadatabase-soil
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      accent: indigo
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: indigo
+
+plugins:
+  - search:
+      lang: en
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: numpy
+            show_docstring_examples: true
+            show_source: true
+            show_root_heading: true
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.highlight
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quickstart.md
+  - API Reference:
+      - Overview: api/index.md
+      - Soil API: api/soil_api.md
+      - Processing: api/processing.md
+      - Visualization: api/visualization.md
+  - Development:
+      - Namespace Packages: development/namespace_packages.md

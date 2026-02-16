@@ -3,6 +3,10 @@ name: Publish to PyPI
 on:
   release:
     types: [published]
+  workflow_call:
+
+permissions:
+  contents: write
 
 jobs:
   pypi-publish:

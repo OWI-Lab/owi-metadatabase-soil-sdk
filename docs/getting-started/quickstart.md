@@ -1,8 +1,8 @@
 # Quick Start
 
 ```python
-from owi.metadatabase.soil.io import SoilAPI
+from owi.metadatabase.soil import SoilAPI
 
-api = SoilAPI(api_key="your-api-key")
-print(api.ping())
+soil_api = SoilAPI(token="your-api-token")
+print(soil_api.ping())
 ```

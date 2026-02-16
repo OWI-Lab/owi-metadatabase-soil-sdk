@@ -1,6 +1,6 @@
 [project]
 name = "owi-metadatabase-soil"
-version = "0.1.0"
+version = "0.1.1"
 description = "Soil extension for OWI-metadatabase SDK"
 authors = [
     { name = "Pietro D'Antuono", email = "pietro.dantuono@vub.be" }

@@ -35,6 +35,9 @@ jobs:
           python-version: "3.13"
           enable-cache: true
 
+      - name: Install dependencies
+        run: uv sync --dev --locked
+
       - name: Resolve release plan
         id: release_plan
         run: |
@@ -48,9 +51,6 @@ jobs:
             echo "Tag v${{ steps.release_plan.outputs.next_version }} already exists." >&2
             exit 1
           fi
-
-      - name: Install dependencies
-        run: uv sync --dev
 
       - name: Validate release candidate
         run: |
@@ -73,11 +73,9 @@ jobs:
           git add \
             .bumpversion.cfg \
             GitVersion.yml \
-            docs/getting-started/installation.md \
             pyproject.toml \
             src/owi/metadatabase/soil/__init__.py \
             tests/test_imports.py \
-            tests/test_namespace.py \
             uv.lock
           git commit -m "Bumpversion ${{ steps.release_plan.outputs.current_version }} -> v${{ steps.release_plan.outputs.next_version }}"
           git tag -a "v${{ steps.release_plan.outputs.next_version }}" -m "Release v${{ steps.release_plan.outputs.next_version }}"

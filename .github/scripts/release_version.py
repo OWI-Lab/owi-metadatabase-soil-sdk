@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -14,7 +15,15 @@ BUMPVERSION_PATH = ROOT / ".bumpversion.cfg"
 GITVERSION_PATH = ROOT / "GitVersion.yml"
 UV_LOCK_PATH = ROOT / "uv.lock"
 TEST_IMPORTS_PATH = ROOT / "tests/test_imports.py"
-INSTALLATION_DOC_PATH = ROOT / "docs/getting-started/installation.md"
+
+TRACKED_VERSION_PATHS = (
+    BUMPVERSION_PATH,
+    GITVERSION_PATH,
+    PYPROJECT_PATH,
+    PACKAGE_VERSION_PATH,
+    TEST_IMPORTS_PATH,
+    UV_LOCK_PATH,
+)
 
 RELEASE_LABELS = {
     "release:major": "major",
@@ -28,11 +37,41 @@ def _read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
-def _replace_once(content: str, pattern: str, replacement: str, path: Path) -> str:
-    updated, count = re.subn(pattern, replacement, content, count=1, flags=re.MULTILINE)
-    if count != 1:
-        raise ValueError(f"Expected exactly one match for {path}")
-    return updated
+def _find_bumpversion_executable() -> str:
+    candidates = [
+        ROOT / ".venv/bin/bumpversion",
+        ROOT / ".venv/Scripts/bumpversion.exe",
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return str(candidate)
+    return "bumpversion"
+
+
+def _run_bumpversion(*args: str) -> subprocess.CompletedProcess[str]:
+    result = subprocess.run(
+        [_find_bumpversion_executable(), "--config-file", str(BUMPVERSION_PATH), *args],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        stderr = result.stderr.strip()
+        stdout = result.stdout.strip()
+        details = stderr or stdout or f"exit code {result.returncode}"
+        raise RuntimeError(f"bumpversion failed: {details}")
+    return result
+
+
+def _parse_bumpversion_output(output: str) -> dict[str, str]:
+    parsed: dict[str, str] = {}
+    for line in output.splitlines():
+        if "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        parsed[key.strip()] = value.strip()
+    return parsed
 
 
 def read_project_version() -> str:
@@ -82,6 +121,43 @@ def bump_version(current_version: str, bump_type: str) -> str:
     raise ValueError(f"Unsupported bump type: {bump_type}")
 
 
+def plan_version(bump_type: str) -> dict[str, str]:
+    result = _run_bumpversion("--allow-dirty", "--dry-run", "--list", bump_type)
+    parsed = _parse_bumpversion_output(result.stdout)
+    current_version = parsed.get("current_version")
+    next_version = parsed.get("new_version")
+    if current_version is None or next_version is None:
+        raise ValueError("bumpversion did not provide current_version and new_version")
+    return {
+        "current_version": current_version,
+        "bump_type": bump_type,
+        "next_version": next_version,
+    }
+
+
+def infer_bump_type(current_version: str, new_version: str) -> str:
+    current_match = SEMVER_PATTERN.match(current_version)
+    new_match = SEMVER_PATTERN.match(new_version)
+    if current_match is None or new_match is None:
+        raise ValueError("Unsupported version format")
+
+    current_major = int(current_match.group("major"))
+    current_minor = int(current_match.group("minor"))
+    current_patch = int(current_match.group("patch"))
+
+    new_major = int(new_match.group("major"))
+    new_minor = int(new_match.group("minor"))
+    new_patch = int(new_match.group("patch"))
+
+    if (new_major, new_minor, new_patch) == (current_major + 1, 0, 0):
+        return "major"
+    if (new_major, new_minor, new_patch) == (current_major, current_minor + 1, 0):
+        return "minor"
+    if (new_major, new_minor, new_patch) == (current_major, current_minor, current_patch + 1):
+        return "patch"
+    raise ValueError(f"Could not infer bump type from {current_version} -> {new_version}")
+
+
 def write_github_output(output_path: str | None, values: dict[str, str]) -> None:
     if output_path is None:
         return
@@ -94,61 +170,11 @@ def apply_version(new_version: str) -> list[str]:
     if SEMVER_PATTERN.match(new_version) is None:
         raise ValueError(f"Unsupported version format: {new_version}")
 
-    changed_paths: list[str] = []
+    current_version = read_project_version()
+    bump_type = infer_bump_type(current_version, new_version)
+    _run_bumpversion("--allow-dirty", "--new-version", new_version, bump_type)
 
-    replacements = [
-        (
-            PYPROJECT_PATH,
-            r'(^\[project\]$(?:\n(?!\[).*)*?^version = ")\d+\.\d+\.\d+("$)',
-            rf"\g<1>{new_version}\2",
-        ),
-        (
-            PACKAGE_VERSION_PATH,
-            r'^__version__ = "\d+\.\d+\.\d+"$',
-            f'__version__ = "{new_version}"',
-        ),
-        (
-            BUMPVERSION_PATH,
-            r"^current_version = \d+\.\d+\.\d+$",
-            f"current_version = {new_version}",
-        ),
-        (
-            GITVERSION_PATH,
-            r"^next-version: \d+\.\d+\.\d+$",
-            f"next-version: {new_version}",
-        ),
-        (
-            UV_LOCK_PATH,
-            r'(\[\[package\]\]\nname = "owi-metadatabase-soil"\nversion = ")\d+\.\d+\.\d+("\nsource = \{ editable = "\." \})',
-            rf"\g<1>{new_version}\2",
-        ),
-        (
-            TEST_IMPORTS_PATH,
-            r'^(\s*assert __version__ == ")\d+\.\d+\.\d+("\s*)$',
-            rf"\g<1>{new_version}\2",
-        ),
-        (
-            INSTALLATION_DOC_PATH,
-            r"^(# Output: )\d+\.\d+\.\d+(\s*)$",
-            rf"\g<1>{new_version}\2",
-        ),
-        (
-            INSTALLATION_DOC_PATH,
-            r"^(# ✓ New \(owi-metadatabase-soil v)\d+\.\d+\.\d+(\+\)\s*)$",
-            rf"\g<1>{new_version}\2",
-        ),
-    ]
-
-    for path, pattern, replacement in replacements:
-        original = _read_text(path)
-        updated = _replace_once(original, pattern, replacement, path)
-        if updated != original:
-            path.write_text(updated, encoding="utf-8")
-            relative_path = str(path.relative_to(ROOT))
-            if relative_path not in changed_paths:
-                changed_paths.append(relative_path)
-
-    return changed_paths
+    return [str(path.relative_to(ROOT)) for path in TRACKED_VERSION_PATHS if path.exists()]
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -171,15 +197,8 @@ def main() -> int:
 
     if args.command == "plan":
         labels = parse_labels(args.labels_json)
-        current_version = read_project_version()
         bump_type = resolve_bump_type(labels)
-        next_version = bump_version(current_version, bump_type)
-
-        payload = {
-            "current_version": current_version,
-            "bump_type": bump_type,
-            "next_version": next_version,
-        }
+        payload = plan_version(bump_type)
         print(json.dumps(payload))
         write_github_output(args.github_output, payload)
         return 0

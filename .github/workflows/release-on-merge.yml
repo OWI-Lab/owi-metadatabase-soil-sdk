@@ -1,0 +1,98 @@
+name: Release On Merge
+
+on:
+  pull_request_target:
+    branches: ["main"]
+    types: [closed]
+
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  release:
+    if: ${{ github.event.pull_request.merged == true }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Python "3.13"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.13"
+          enable-cache: true
+
+      - name: Resolve release plan
+        id: release_plan
+        run: |
+          python .github/scripts/release_version.py plan \
+            --labels-json '${{ toJson(github.event.pull_request.labels.*.name) }}' \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Fail if tag already exists
+        run: |
+          if git rev-parse "v${{ steps.release_plan.outputs.next_version }}" >/dev/null 2>&1; then
+            echo "Tag v${{ steps.release_plan.outputs.next_version }} already exists." >&2
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: uv sync --dev --locked
+
+      - name: Validate release candidate
+        run: |
+          uv run invoke test.run
+          uv run invoke qa.all
+          uv run invoke docs.build
+
+      - name: Apply release version
+        run: |
+          python .github/scripts/release_version.py apply \
+            --new-version "${{ steps.release_plan.outputs.next_version }}"
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit and tag release
+        run: |
+          git add \
+            .bumpversion.cfg \
+            GitVersion.yml \
+            docs/getting-started/installation.md \
+            pyproject.toml \
+            src/owi/metadatabase/soil/__init__.py \
+            tests/test_imports.py \
+            tests/test_namespace.py \
+            uv.lock
+          git commit -m "Bumpversion ${{ steps.release_plan.outputs.current_version }} -> v${{ steps.release_plan.outputs.next_version }}"
+          git tag -a "v${{ steps.release_plan.outputs.next_version }}" -m "Release v${{ steps.release_plan.outputs.next_version }}"
+
+      - name: Push release commit and tag
+        run: |
+          git push origin HEAD:main
+          git push origin "v${{ steps.release_plan.outputs.next_version }}"
+
+      - name: Summarize release
+        run: |
+          {
+            echo "## Release Created"
+            echo
+            echo "- Merged pull request: #${{ github.event.pull_request.number }}"
+            echo "- Release bump: ${{ steps.release_plan.outputs.bump_type }}"
+            echo "- Published tag trigger: v${{ steps.release_plan.outputs.next_version }}"
+          } >> "$GITHUB_STEP_SUMMARY"

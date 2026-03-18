@@ -1051,8 +1051,8 @@ class SoilAPI(API):
         if cpt:
             cpt_ = SoilDataProcessor.process_cpt(df_sum, df_raw, **kwargs)
             dict_["cpt"] = cpt_
-            return dict_
-        return dict_
+            return cast(SoilCptDetailResult, dict_)
+        return cast(SoilCptDetailResult, dict_)
 
     def insitutest_exists(
         self,
@@ -1274,8 +1274,8 @@ class SoilAPI(API):
         if convert_to_profile:
             dsp = SoilDataProcessor.convert_to_profile(df_sum, df_detail, profile_title, drop_info_cols)
             dict_["soilprofile"] = dsp
-            return dict_
-        return dict_
+            return cast(SoilApiResult, dict_)
+        return cast(SoilApiResult, dict_)
 
     def soilprofile_exists(
         self,

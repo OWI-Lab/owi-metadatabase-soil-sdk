@@ -1,20 +1,20 @@
-name: Publish to PyPI
+name: Tagged release
 
 on:
-  release:
-    types: [published]
   workflow_call:
 
 permissions:
   contents: write
 
 jobs:
-  pypi-publish:
+  tagged-release:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v4
-      - run: uv build
-      - uses: pypa/gh-action-pypi-publish@release/v1
+    - uses: actions/checkout@v4
+    - uses: marvinpinto/action-automatic-releases@v1.2.1
+      name: Build & test
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: false
+        files: |
+          LICENSE

@@ -2,6 +2,12 @@ name: Publish Python package
 
 on:
   workflow_call:
+  workflow_dispatch:
+    inputs:
+      confirm_publish:
+        description: Confirm manual publish of the current main branch to PyPI
+        required: true
+        type: boolean
 
 permissions:
   contents: read
@@ -9,17 +15,27 @@ permissions:
 
 jobs:
   publish:
+    if: ${{ github.event_name == 'workflow_call' || inputs.confirm_publish == true }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python "3.12"
+      with:
+        ref: ${{ github.ref_name }}
+    - name: Require main branch for manual publish
+      if: ${{ github.event_name == 'workflow_dispatch' }}
+      run: |
+        if [[ "${GITHUB_REF_NAME}" != "main" ]]; then
+          echo "Manual publish is only allowed from the main branch." >&2
+          exit 1
+        fi
+    - name: Set up Python "3.13"
       uses: actions/setup-python@v5
       with:
-        python-version: "3.12"
+        python-version: "3.13"
     - name: Install uv
       uses: astral-sh/setup-uv@v7
       with:
-        python-version: "3.12"
+        python-version: "3.13"
         enable-cache: true
     - name: Install dependencies
       run: uv sync --dev
@@ -27,3 +43,13 @@ jobs:
       run: uv build
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
+    - name: Summarize manual publish
+      if: ${{ github.event_name == 'workflow_dispatch' }}
+      run: |
+        {
+          echo "## Manual Package Publish"
+          echo
+          echo "- Source branch: ${GITHUB_REF_NAME}"
+          echo "- Published version: $(uv version --short)"
+          echo "- Trigger: workflow_dispatch"
+        } >> "$GITHUB_STEP_SUMMARY"

@@ -16,6 +16,8 @@ from .io import SoilAPI
 from .processing import SoilDataProcessor, SoilprofileProcessor
 from .visualization import SoilPlot
 
+__version__ = "0.1.0"
+
 # Define the public API
 __all__ = [
     # Core API classes
@@ -27,6 +29,7 @@ __all__ = [
     "io",
     "processing",
     "visualization",
+    "__version__",
 ]
 
 # Import subpackages to make them available via soil.*

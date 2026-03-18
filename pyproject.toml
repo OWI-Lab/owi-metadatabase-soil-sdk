@@ -1,6 +1,6 @@
 [project]
 name = "owi-metadatabase-soil"
-version = "0.1.1"
+version = "0.1.0"
 description = "Soil extension for OWI-metadatabase SDK"
 authors = [
     { name = "Pietro D'Antuono", email = "pietro.dantuono@vub.be" }
@@ -25,9 +25,13 @@ classifiers = [
 
 dependencies = [
     "owi-metadatabase>=0.1.0",
+    "requests >=2.32.0",
+    "numpy >=1.26.0,<2.0.0 ; python_version < '3.11'",
+    "numpy >=2.0.0 ; python_version >= '3.11'",
+    "pandas >=2.0.0",
+    "plotly >=5.19.0",
     "groundhog>=0.10.0, <=0.15.0",
     "pyproj>=3.6.0",
-    "scipy>=1.13.0",
 ]
 
 [dependency-groups]
@@ -58,6 +62,7 @@ docs = [
 dev-tools = [
     "invoke>=2.2.0",
     "pre-commit>=3.0.0",
+    "deptry>=0.23.1",
 ]
 
 [project.urls]
@@ -125,5 +130,5 @@ name = "testpypi"
 url = "https://test.pypi.org/simple"
 explicit = true
 
-[tool.uv.sources]
-owi-metadatabase = { index = "testpypi" }
+# [tool.uv.sources]
+# owi-metadatabase = { index = "testpypi" }

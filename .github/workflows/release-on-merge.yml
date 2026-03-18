@@ -11,11 +11,11 @@ concurrency:
 
 permissions:
   contents: write
-  pull-requests: read
+  pull-requests: write
 
 jobs:
-  release:
-    if: ${{ github.event.pull_request.merged == true }}
+  prepare-release-pr:
+    if: ${{ github.event.pull_request.merged == true && !startsWith(github.event.pull_request.head.ref, 'release/v') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout main
@@ -68,29 +68,86 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Commit and tag release
-        run: |
-          git add \
-            .bumpversion.cfg \
-            GitVersion.yml \
-            pyproject.toml \
-            src/owi/metadatabase/soil/__init__.py \
-            tests/test_imports.py \
+      - name: Create release pull request
+        id: release_pr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: release/v${{ steps.release_plan.outputs.next_version }}
+          delete-branch: true
+          commit-message: Bumpversion ${{ steps.release_plan.outputs.current_version }} -> v${{ steps.release_plan.outputs.next_version }}
+          title: Bumpversion ${{ steps.release_plan.outputs.current_version }} -> v${{ steps.release_plan.outputs.next_version }}
+          body: |
+            Automated release PR for version v${{ steps.release_plan.outputs.next_version }}.
+
+            Source merged PR: #${{ github.event.pull_request.number }}
+            Release bump: ${{ steps.release_plan.outputs.bump_type }}
+          add-paths: |
+            .bumpversion.cfg
+            GitVersion.yml
+            pyproject.toml
+            src/owi/metadatabase/soil/__init__.py
+            tests/test_imports.py
             uv.lock
-          git commit -m "Bumpversion ${{ steps.release_plan.outputs.current_version }} -> v${{ steps.release_plan.outputs.next_version }}"
-          git tag -a "v${{ steps.release_plan.outputs.next_version }}" -m "Release v${{ steps.release_plan.outputs.next_version }}"
 
-      - name: Push release commit and tag
-        run: |
-          git push origin HEAD:main
-          git push origin "v${{ steps.release_plan.outputs.next_version }}"
-
-      - name: Summarize release
+      - name: Summarize release preparation
         run: |
           {
-            echo "## Release Created"
+            echo "## Release PR Prepared"
             echo
             echo "- Merged pull request: #${{ github.event.pull_request.number }}"
             echo "- Release bump: ${{ steps.release_plan.outputs.bump_type }}"
-            echo "- Published tag trigger: v${{ steps.release_plan.outputs.next_version }}"
+            echo "- Target version: v${{ steps.release_plan.outputs.next_version }}"
+            echo "- Release PR operation: ${{ steps.release_pr.outputs.pull-request-operation || 'none' }}"
+            echo "- Release PR: ${{ steps.release_pr.outputs.pull-request-url || 'not created' }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  tag-release:
+    if: ${{ github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/v') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Resolve release tag
+        id: release_tag
+        run: |
+          tag="${{ github.event.pull_request.head.ref }}"
+          tag="${tag#release/}"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+
+      - name: Fail if tag already exists
+        run: |
+          if git rev-parse "${{ steps.release_tag.outputs.tag }}" >/dev/null 2>&1; then
+            echo "Tag ${{ steps.release_tag.outputs.tag }} already exists." >&2
+            exit 1
+          fi
+
+      - name: Verify merged version matches tag
+        run: |
+          project_version="$(sed -n 's/^version = "\([0-9][0-9.]*\)"$/\1/p' pyproject.toml | head -n1)"
+          if [[ "v${project_version}" != "${{ steps.release_tag.outputs.tag }}" ]]; then
+            echo "Expected pyproject version v${project_version} to match ${{ steps.release_tag.outputs.tag }}." >&2
+            exit 1
+          fi
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Create and push release tag
+        run: |
+          git tag -a "${{ steps.release_tag.outputs.tag }}" -m "Release ${{ steps.release_tag.outputs.tag }}"
+          git push origin "${{ steps.release_tag.outputs.tag }}"
+
+      - name: Summarize release tag
+        run: |
+          {
+            echo "## Release Tagged"
+            echo
+            echo "- Merged release PR: #${{ github.event.pull_request.number }}"
+            echo "- Published tag trigger: ${{ steps.release_tag.outputs.tag }}"
           } >> "$GITHUB_STEP_SUMMARY"

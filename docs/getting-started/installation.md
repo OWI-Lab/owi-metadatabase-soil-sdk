@@ -5,13 +5,13 @@
 From TestPyPI (current deployment target):
 
 ```bash
-pip install --index-url https://test.pypi.org/simple --extra-index-url https://pypi.org/simple owi-metadatabase-soil
+pip install owi-metadatabase-soil
 ```
 
 Using `uv`:
 
 ```bash
-uv pip install --index-url https://test.pypi.org/simple --extra-index-url https://pypi.org/simple owi-metadatabase-soil
+uv pip install owi-metadatabase-soil
 ```
 
 ## Install from core package extra (`owi-metadatabase[soil]`)
@@ -19,13 +19,13 @@ uv pip install --index-url https://test.pypi.org/simple --extra-index-url https:
 If you prefer installing from the base package extras:
 
 ```bash
-pip install --index-url https://test.pypi.org/simple --extra-index-url https://pypi.org/simple "owi-metadatabase[soil]"
+pip install "owi-metadatabase[soil]"
 ```
 
 Using `uv`:
 
 ```bash
-uv pip install --index-url https://test.pypi.org/simple --extra-index-url https://pypi.org/simple "owi-metadatabase[soil]"
+uv pip install "owi-metadatabase[soil]"
 ```
 
 ## Development setup

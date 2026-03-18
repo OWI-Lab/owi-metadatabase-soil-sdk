@@ -16,7 +16,7 @@ from .io import SoilAPI
 from .processing import SoilDataProcessor, SoilprofileProcessor
 from .visualization import SoilPlot
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 # Define the public API
 __all__ = [

@@ -89,6 +89,13 @@ jobs:
             tests/test_imports.py
             uv.lock
 
+      - name: Enable release PR auto-merge
+        if: ${{ steps.release_pr.outputs.pull-request-number != '' }}
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          pull-request-number: ${{ steps.release_pr.outputs.pull-request-number }}
+          merge-method: squash
+
       - name: Summarize release preparation
         run: |
           {
@@ -99,6 +106,7 @@ jobs:
             echo "- Target version: v${{ steps.release_plan.outputs.next_version }}"
             echo "- Release PR operation: ${{ steps.release_pr.outputs.pull-request-operation || 'none' }}"
             echo "- Release PR: ${{ steps.release_pr.outputs.pull-request-url || 'not created' }}"
+            echo "- Release PR auto-merge: enabled"
           } >> "$GITHUB_STEP_SUMMARY"
 
   tag-release:

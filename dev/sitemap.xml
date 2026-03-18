@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://owi-lab.github.io/owi-metadatabase-soil/dev/</loc>
+         <lastmod>2026-03-18</lastmod>
+    </url>
+    <url>
+         <loc>https://owi-lab.github.io/owi-metadatabase-soil/dev/api/</loc>
+         <lastmod>2026-03-18</lastmod>
+    </url>
+    <url>
+         <loc>https://owi-lab.github.io/owi-metadatabase-soil/dev/api/processing/</loc>
+         <lastmod>2026-03-18</lastmod>
+    </url>
+    <url>
+         <loc>https://owi-lab.github.io/owi-metadatabase-soil/dev/api/soil_api/</loc>
+         <lastmod>2026-03-18</lastmod>
+    </url>
+    <url>
+         <loc>https://owi-lab.github.io/owi-metadatabase-soil/dev/api/visualization/</loc>
+         <lastmod>2026-03-18</lastmod>
+    </url>
+    <url>
+         <loc>https://owi-lab.github.io/owi-metadatabase-soil/dev/development/namespace_packages/</loc>
+         <lastmod>2026-03-18</lastmod>
+    </url>
+    <url>
+         <loc>https://owi-lab.github.io/owi-metadatabase-soil/dev/getting-started/installation/</loc>
+         <lastmod>2026-03-18</lastmod>
+    </url>
+    <url>
+         <loc>https://owi-lab.github.io/owi-metadatabase-soil/dev/getting-started/quickstart/</loc>
+         <lastmod>2026-03-18</lastmod>
+    </url>
+</urlset>

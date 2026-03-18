@@ -159,3 +159,14 @@ jobs:
             echo "- Merged release PR: #${{ github.event.pull_request.number }}"
             echo "- Published tag trigger: ${{ steps.release_tag.outputs.tag }}"
           } >> "$GITHUB_STEP_SUMMARY"
+
+  publish-package:
+    if: ${{ github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/v') }}
+    needs: [tag-release]
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/publish.yml
+    with:
+      target_ref: main
+    secrets: inherit

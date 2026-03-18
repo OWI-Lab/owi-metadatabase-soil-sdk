@@ -2,6 +2,11 @@ name: Publish Python package
 
 on:
   workflow_call:
+    inputs:
+      target_ref:
+        description: Git ref to checkout for publishing.
+        required: false
+        type: string
   workflow_dispatch:
     inputs:
       confirm_publish:
@@ -20,7 +25,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        ref: ${{ github.ref_name }}
+        ref: ${{ inputs.target_ref || github.ref_name }}
     - name: Require main branch for manual publish
       if: ${{ github.event_name == 'workflow_dispatch' }}
       run: |

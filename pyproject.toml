@@ -81,7 +81,7 @@ dev-tools = [
 [project.urls]
 homepage = "https://owi-lab.github.io/owi-metadatabase-sdk/"
 repository = "https://github.com/OWI-Lab/owi-metadatabase-soil-sdk/"
-documentation = "https://owi-lab.github.io/owi-metadatabase-soil/"
+documentation = "https://owi-lab.github.io/owi-metadatabase-soil-sdk/"
 
 [build-system]
 requires = ["hatchling>=1.25.0"]

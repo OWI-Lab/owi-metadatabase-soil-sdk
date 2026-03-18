@@ -1,4 +1,6 @@
-from typing import Any, Union
+"""Tests for soil data retrieval and processing."""
+
+from typing import Any, Union, cast
 from unittest import mock
 
 import pandas as pd
@@ -99,7 +101,10 @@ def test_gather_data_entity(
         if key != "data":
             assert dict_gathered[key] == dict_gathered_true[key]
         else:
-            pd_testing.assert_frame_equal(dict_gathered[key], dict_gathered_true[key])
+            pd_testing.assert_frame_equal(
+                cast(pd.DataFrame, dict_gathered[key]),
+                cast(pd.DataFrame, dict_gathered_true[key]),
+            )
 
 
 def test_get_closest_entity_2d(
@@ -114,7 +119,10 @@ def test_get_closest_entity_2d(
         if key != "data":
             assert dict_[key] == dict_true[key]
         else:
-            pd_testing.assert_frame_equal(dict_[key], dict_true[key])
+            pd_testing.assert_frame_equal(
+                cast(pd.DataFrame, dict_[key]),
+                cast(pd.DataFrame, dict_true[key]),
+            )
 
 
 # def test_get_closest_entity_3d(

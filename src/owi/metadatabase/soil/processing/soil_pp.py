@@ -13,10 +13,8 @@ Examples
 1
 """
 
-# mypy: ignore-errors
-
 import warnings
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union, cast
 
 import pandas as pd
 from groundhog.general.soilprofile import profile_from_dataframe
@@ -711,7 +709,7 @@ class SoilprofileProcessor:
         # Include optional keys that are present.
         _keys = key_db.get("optional", [])
         optional_keys = cls._validate_keys(data=df, required_keys=_keys, mandatory=False)
-        soilprofile = df[mandatory_keys + optional_keys].copy()
+        soilprofile = cast(pd.DataFrame, df[mandatory_keys + optional_keys].copy())
         # Add additional required info
         soilprofile = cls._add_soilinfo(soilprofile, pw, mudline)
 

@@ -1,5 +1,8 @@
+"""Tests for soil profile processing methods."""
+
 import json
 import os
+from typing import cast
 
 import pandas as pd
 import pytest
@@ -169,5 +172,6 @@ def test_convert_to_profile(filename_input: str, filename_output: str) -> None:
     )
 
     result = SoilDataProcessor.convert_to_profile(df_temp, df_input, None, True)
+    assert result is not None
 
-    pd.testing.assert_frame_equal(result, groundhog_profile, check_like=True)
+    pd.testing.assert_frame_equal(cast(pd.DataFrame, result), cast(pd.DataFrame, groundhog_profile), check_like=True)

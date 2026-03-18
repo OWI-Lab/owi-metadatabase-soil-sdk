@@ -1,8 +1,8 @@
 site_name: OWI Metadatabase Soil Extension
 site_description: soil extension for OWI Metadatabase SDK
 site_author: OWI-Lab
-site_url: https://owi-lab.github.io/owi-metadatabase-soil/
-repo_url: https://github.com/OWI-Lab/owi-metadatabase-soil
+site_url: https://owi-lab.github.io/owi-metadatabase-soil-sdk/
+repo_url: https://github.com/OWI-Lab/owi-metadatabase-soil-sdk
 repo_name: OWI-Lab/owi-metadatabase-soil
 edit_uri: edit/main/docs/
 

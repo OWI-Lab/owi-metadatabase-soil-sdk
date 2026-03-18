@@ -15,7 +15,7 @@
 This package extends `owi-metadatabase` with soil-focused endpoints, data processing,
 and plotting helpers while keeping the same `owi.metadatabase.*` import namespace.
 
-📚 **[Read the Documentation](https://owi-lab.github.io/owi-metadatabase-soil/)**
+📚 **[Read the Documentation](https://owi-lab.github.io/owi-metadatabase-soil-sdk/)**
 
 ## Features
 

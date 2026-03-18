@@ -1,7 +1,7 @@
 # OWI-metadatabase Soil Extension
 
-[![version](https://img.shields.io/pypi/v/owi-metadatabase-soil)](https://test.pypi.org/project/owi-metadatabase-soil/)
-[![python versions](https://img.shields.io/pypi/pyversions/owi-metadatabase-soil)](https://test.pypi.org/project/owi-metadatabase-soil/)
+[![version](https://img.shields.io/pypi/v/owi-metadatabase-soil)](https://pypi.org/project/owi-metadatabase-soil/)
+[![python versions](https://img.shields.io/pypi/pyversions/owi-metadatabase-soil)](https://pypi.org/project/owi-metadatabase-soil/)
 [![license](https://img.shields.io/github/license/owi-lab/owi-metadatabase-soil-sdk)](https://github.com/OWI-Lab/owi-metadatabase-soil-sdk/blob/main/LICENSE)
 [![pytest](https://img.shields.io/github/actions/workflow/status/owi-lab/owi-metadatabase-soil-sdk/ci.yml?label=pytest)](https://github.com/OWI-Lab/owi-metadatabase-soil-sdk/actions/workflows/ci.yml)
 [![lint](https://img.shields.io/github/actions/workflow/status/owi-lab/owi-metadatabase-soil-sdk/ci.yml?label=lint)](https://github.com/OWI-Lab/owi-metadatabase-soil-sdk/actions/workflows/ci.yml)

@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python "3.13"
         uses: actions/setup-python@v5
@@ -32,7 +32,7 @@ jobs:
           enable-cache: true
 
       - name: Install dependencies
-        run: uv sync --dev --locked
+        run: uv sync --dev  # I do not want to use the lock file here since we want to test the release candidate with the latest dependencies, not necessarily the ones from the last release
 
       - name: Resolve release plan
         id: release_plan

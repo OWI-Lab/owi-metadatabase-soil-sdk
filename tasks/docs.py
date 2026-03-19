@@ -88,7 +88,7 @@ def deploy_version(c_r: Any, version: str, alias: str = "latest") -> None:
     if alias == version:
         _command = f"mike deploy --push {version}"
     else:
-        _command = f"mike deploy --push {version} {alias}"
+        _command = f"mike deploy --push --update-aliases {version} {alias}"
     print(f">>> {colorize(_command, color=Color.OKBLUE)}\n")
     c_r.run(_command, pty=PTY)
 

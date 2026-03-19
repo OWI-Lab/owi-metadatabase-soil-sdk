@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: main
           fetch-depth: 0
@@ -90,7 +90,9 @@ jobs:
             uv.lock
 
       - name: Enable release PR auto-merge
+        id: enable_automerge
         if: ${{ steps.release_pr.outputs.pull-request-number != '' }}
+        continue-on-error: true
         uses: peter-evans/enable-pull-request-automerge@v3
         with:
           pull-request-number: ${{ steps.release_pr.outputs.pull-request-number }}
@@ -106,15 +108,24 @@ jobs:
             echo "- Target version: v${{ steps.release_plan.outputs.next_version }}"
             echo "- Release PR operation: ${{ steps.release_pr.outputs.pull-request-operation || 'none' }}"
             echo "- Release PR: ${{ steps.release_pr.outputs.pull-request-url || 'not created' }}"
-            echo "- Release PR auto-merge: enabled"
+            if [[ "${{ steps.enable_automerge.outcome || 'skipped' }}" == "success" ]]; then
+              echo "- Release PR auto-merge: enabled"
+            elif [[ "${{ steps.release_pr.outputs.pull-request-number }}" != "" ]]; then
+              echo "- Release PR auto-merge: not enabled by workflow"
+              echo "- Auto-merge note: repository auto-merge being enabled is not sufficient when GITHUB_TOKEN is not authorized on the protected main branch"
+            else
+              echo "- Release PR auto-merge: skipped"
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
 
   tag-release:
     if: ${{ github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/v') }}
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.release_tag.outputs.tag }}
     steps:
       - name: Checkout main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: main
           fetch-depth: 0
@@ -160,13 +171,35 @@ jobs:
             echo "- Published tag trigger: ${{ steps.release_tag.outputs.tag }}"
           } >> "$GITHUB_STEP_SUMMARY"
 
-  publish-package:
+  dispatch-publish:
     if: ${{ github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/v') }}
     needs: [tag-release]
     permissions:
-      contents: read
-      id-token: write
-    uses: ./.github/workflows/publish.yml
-    with:
-      target_ref: main
-    secrets: inherit
+      actions: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Dispatch publish workflow for release tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run publish.yml \
+            --ref "${{ needs.tag-release.outputs.tag }}" \
+            -f target_ref="${{ needs.tag-release.outputs.tag }}" \
+            -f publish_mode=release-tag \
+            -f confirm_publish=true
+
+      - name: Summarize publish dispatch
+        run: |
+          {
+            echo "## Publish Dispatched"
+            echo
+            echo "- Release tag: ${{ needs.tag-release.outputs.tag }}"
+            echo "- Publish workflow: publish.yml"
+            echo "- Trigger: workflow_dispatch"
+          } >> "$GITHUB_STEP_SUMMARY"

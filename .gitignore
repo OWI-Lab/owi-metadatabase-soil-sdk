@@ -31,7 +31,7 @@ htmlcov/
 # Documentation
 docs/_build/
 docs/generated/
-site/  # Documentation build output
+site/
 
 # Linter/formatter
 .ruff_cache/
@@ -40,3 +40,7 @@ site/  # Documentation build output
 .DS_Store
 
 .vscode/
+
+# binaries
+dist/
+build/

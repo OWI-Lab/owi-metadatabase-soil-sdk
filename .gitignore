@@ -31,7 +31,7 @@ htmlcov/
 # Documentation
 docs/_build/
 docs/generated/
-site/  # MkDocs build output
+site/  # Documentation build output
 
 # Linter/formatter
 .ruff_cache/

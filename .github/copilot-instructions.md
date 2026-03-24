@@ -31,7 +31,7 @@
 - Setup: `uv sync --dev`
 - Tests: `uv run invoke test.run` (or `uv run invoke test.all`); task includes tests plus doctests for key source files.
 - Quality gate: `uv run invoke qa.all` (runs `ruff format`, `ruff check`, and `ty check`).
-- Docs: `uv run invoke docs.build` (strict) and `uv run invoke docs.serve`.
+- Docs: `uv run invoke docs.build` and `uv run invoke docs.serve` (tasks/docs.py, zensical).
 - Pytest defaults in `pyproject.toml` enable coverage for `src/owi/metadatabase/soil`, doctests, and markdown doctest globbing.
 
 ## Integration points

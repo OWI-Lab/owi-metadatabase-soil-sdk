@@ -1,51 +1,34 @@
 """Quality assessment tasks. Run all quality checks with `inv qa`.
-
 The quality checks are:
-- ruff format
-- ruff check
-- ty
+- `pre-commit` hooks: Run the pre-commit hooks defined in the
+  `.pre-commit-config.yaml` file. By default, all hooks will be run, but you
+  can specify a subset of hooks to run by providing their names as arguments to
+  the `hooks` parameter. For example, to run only the `black` and `isort` hooks,
+  you can use the command `inv qa --hooks black,isort`.
 """
 
-from typing import Any
-
-from invoke import task
+from invoke.tasks import task
 
 from .colors import Color, colorize
 from .system import PTY
 
 
-@task
-def format(c_r: Any) -> None:
-    """Run code formatter: ruff."""
-    tmp_str = colorize("\nRunning ruff format...\n", color=Color.HEADER, bold=True)
+@task(
+    default=True,
+    help={"hooks": "Specify a single hook or set of hooks to run."},
+)
+def pre_commit(c_r, hooks: str = "", files: str = "--all-files"):
+    """Run pre-commit hooks."""
+    tmp_str = colorize("\nRunning pre-commit hooks...", color=Color.HEADER, bold=True)
     print(f"{tmp_str}")
-    c_r.run("ruff format src tests", pty=PTY)
-
-
-@task
-def lint(c_r: Any) -> None:
-    """Run linter: ruff."""
-    tmp_str = colorize("\nRunning ruff check...\n", color=Color.HEADER, bold=True)
-    print(f"{tmp_str}")
-    c_r.run("ruff check src tests", pty=PTY)
-
-
-@task
-def lint_fix(c_r: Any) -> None:
-    """Run linter with auto-fix: ruff."""
-    tmp_str = colorize("\nRunning ruff check --fix...\n", color=Color.HEADER, bold=True)
-    print(f"{tmp_str}")
-    c_r.run("ruff check --fix src tests", pty=PTY)
-
-
-@task
-def ty_check(c_r: Any) -> None:
-    """Run static type checking: ty."""
-    tmp_str = colorize("Running ty...\n", color=Color.HEADER, bold=True)
-    print(f"{tmp_str}")
-    c_r.run("ty check src/owi tests", warn=True, pty=PTY)
-
-
-@task(post=[format, lint, ty_check], default=True)
-def all(c_r: Any) -> None:
-    """Run all quality checks."""
+    _command = f"pre-commit run {hooks} {files}"
+    print(f"\n{colorize('>>> ' + _command, color=Color.OKBLUE)}\n")
+    result = c_r.run(
+        _command,
+        pty=PTY,
+        warn=True,
+    )
+    if "failed" in result.stdout.lower():
+        print(colorize("\nPre-commit hooks completed with errors.\n", color=Color.ERROR))
+    else:
+        print(colorize("\nPre-commit hooks completed.\n", color=Color.OKGREEN))

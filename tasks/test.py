@@ -1,6 +1,6 @@
 """Test tasks."""  # pylint: disable=R0801
 
-from invoke import task
+from invoke.tasks import task
 
 from .colors import Color, colorize
 from .system import (
@@ -16,8 +16,7 @@ SYSTEM = get_current_system()
 
 @task(
     help={
-        "test": "Specify a single test or set of tests to run."
-        "Use pytest syntax, e.g. test_module.py::test_function",
+        "test": "Specify a single test or set of tests to run.Use pytest syntax, e.g. test_module.py::test_function",
         "pytest_args": "Specify pytest arguments.",
     }
 )
@@ -29,11 +28,10 @@ def run(c_r, test=None, pytest_args="-v -W ignore::UserWarning"):
 
     _command = (
         f"pytest {pytest_args} "
-        f"--cov=src/owi/metadatabase --cov-report=term:skip-covered "
-        f"--cov-report=html --cov-report=html:{COV_DOC_BUILD_DIR} "
-        f"--doctest-modules {test_command}"
+        f"--cov={c_r.project_slug} --cov-report=term:skip-covered "
+        f"--cov-report=html --cov-report=html:{COV_DOC_BUILD_DIR} {test_command}"
     )
-    print(f"{colorize('>>> '+_command, color=Color.OKBLUE)}\n")
+    print(f"{colorize('>>> ' + _command, color=Color.OKBLUE)}\n")
     c_r.run(
         _command,
         pty=PTY,
@@ -52,15 +50,10 @@ def coverage(c_r):
             f"--directory {COV_DOC_BUILD_DIR} {COV_PORT}"
         )
     elif SYSTEM == OperatingSystem.WINDOWS:
-        _command = (
-            f"wt -d . python -m http.server --bind localhost "
-            f"--directory {COV_DOC_BUILD_DIR} {COV_PORT}"
-        )
+        _command = f"wt -d . python -m http.server --bind localhost --directory {COV_DOC_BUILD_DIR} {COV_PORT}"
     else:
         raise ValueError(f"System {SYSTEM} is not supported")
-    tmp_str = colorize(
-        "Starting coverage server...", color=Color.HEADER, bold=True
-    )
+    tmp_str = colorize("Starting coverage server...", color=Color.HEADER, bold=True)
     print(f"{tmp_str}")
     c_r.run(_command)
     print(f">>> {colorize(_command, color=Color.OKBLUE)}\n")
@@ -78,14 +71,10 @@ def stop(c_r):
     COV_PORT = c_r.start_port + 2  # pylint: disable=C0103
 
     if SYSTEM in [OperatingSystem.LINUX, OperatingSystem.MAC]:
-        result = c_r.run(
-            f"screen -ls {COV_SCREEN_NAME}", warn=True, hide="both"
-        )
+        result = c_r.run(f"screen -ls {COV_SCREEN_NAME}", warn=True, hide="both")
         if "No Sockets" in result.stdout:
             return
-        tmp_str = colorize(
-            "\nStopping coverage server...\n", color=Color.HEADER, bold=True
-        )
+        tmp_str = colorize("\nStopping coverage server...\n", color=Color.HEADER, bold=True)
         print(tmp_str)
         _command = f"kill $(lsof -ti:{COV_PORT})"
         print(f"{colorize('>>> ' + _command, color=Color.OKBLUE)}\n")
@@ -94,8 +83,7 @@ def stop(c_r):
     elif SYSTEM == OperatingSystem.WINDOWS:
         print(
             colorize(
-                "Coverage server is not attached to this terminal process. "
-                "Close windows terminal instance instead.",
+                "Coverage server is not attached to this terminal process. Close windows terminal instance instead.",
                 color=Color.WARNING,
             )
         )
@@ -111,9 +99,7 @@ def stop(c_r):
         "pytest_args": "Specify pytest arguments.",
     },
 )
-def all(
-    c_r, test=None, pytest_args="-v -W ignore::UserWarning"
-):  # pylint: disable=W0622
+def all(c_r, test=None, pytest_args="-v -W ignore::UserWarning"):  # pylint: disable=W0622
     """Run all tests and start coverage report webserver."""
     stop(c_r)
     run(c_r, test, pytest_args)

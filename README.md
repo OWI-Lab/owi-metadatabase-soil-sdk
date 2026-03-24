@@ -8,7 +8,7 @@
 [![issues](https://img.shields.io/github/issues/owi-lab/owi-metadatabase-soil-sdk)](https://github.com/OWI-Lab/owi-metadatabase-soil-sdk/issues)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17531273.svg)](https://doi.org/10.5281/zenodo.10620568)
 ![Coverage](https://img.shields.io/badge/coverage-55%25-red)
-[![Documentation](https://img.shields.io/badge/docs-mkdocs-blue)](https://owi-lab.github.io/owi-metadatabase-soil-sdk/)
+[![Documentation](https://img.shields.io/badge/docs-zensical-blue)](https://owi-lab.github.io/owi-metadatabase-soil-sdk/)
 
 **Soil extension package for the OWI-metadatabase namespace SDK.**
 

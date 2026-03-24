@@ -53,6 +53,8 @@ nav = [
 
 [project.theme]
 variant = "modern"
+font.text = "Barlow"
+font.code = "Google Sans Code"
 logo = "assets/LogoOWI.png"
 favicon = "assets/favicon.png"
 language = "en"
@@ -60,13 +62,12 @@ features = [
   "navigation.instant",
   "navigation.tracking",
   "navigation.tabs",
-  "navigation.tabs.sticky",
   "navigation.sections",
   "navigation.expand",
   "navigation.top",
   "navigation.footer",
   "toc.follow",
-  "toc.integrate",
+  # "toc.integrate",
   "search.suggest",
   "search.highlight",
   "search.share",
@@ -77,17 +78,17 @@ features = [
 [[project.theme.palette]]
 media = "(prefers-color-scheme: light)"
 scheme = "default"
-primary = "brown"
-accent = "brown"
-toggle.icon = "material/brightness-7"
+primary = "pink"
+accent = "pink"
+toggle.icon = "lucide/sun"
 toggle.name = "Switch to dark mode"
 
 [[project.theme.palette]]
 media = "(prefers-color-scheme: dark)"
 scheme = "slate"
-primary = "brown"
-accent = "brown"
-toggle.icon = "material/brightness-4"
+primary = "pink"
+accent = "pink"
+toggle.icon = "lucide/moon"
 toggle.name = "Switch to light mode"
 
 [[project.extra.social]]
@@ -97,6 +98,10 @@ link = "https://github.com/OWI-Lab"
 [[project.extra.social]]
 icon = "fontawesome/brands/python"
 link = "https://pypi.org/project/owi-metadatabase-soil/"
+
+[[project.extra.social]]
+icon = "fontawesome/brands/linkedin"
+link = "https://www.linkedin.com/company/owi-lab/"
 
 [project.plugins.mkdocstrings.handlers.python]
 paths = ["src"]

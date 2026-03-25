@@ -12,8 +12,7 @@
 
 **Soil extension package for the OWI-metadatabase namespace SDK.**
 
-This package extends `owi-metadatabase` with soil-focused endpoints, data processing,
-and plotting helpers while keeping the same `owi.metadatabase.*` import namespace.
+This package extends [`owi-metadatabase`](https://pypi.org/project/owi-metadatabase/) SDK under the `owi.metadatabase.*` namespace so it behaves like the existing extension packages.
 
 📚 **[Read the Documentation](https://owi-lab.github.io/owi-metadatabase-soil-sdk/)**
 
@@ -126,7 +125,7 @@ figure.show()
 ```bash
 uv sync --dev
 uv run invoke test.run
-uv run invoke qa.all
+uv run invoke qa
 uv run invoke docs.build
 ```
 

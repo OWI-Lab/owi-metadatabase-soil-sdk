@@ -1764,10 +1764,10 @@
 <h2 id="code-style">Code Style<a class="headerlink" href="#code-style" title="Permanent link">&para;</a></h2>
 <p>The project uses <strong>ruff</strong> for formatting and linting (120-char lines) and
 <strong>ty</strong> for type checking:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uv<span class="w"> </span>run<span class="w"> </span>inv<span class="w"> </span>qa.all
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uv<span class="w"> </span>run<span class="w"> </span>inv<span class="w"> </span>qa
 </span></code></pre></div>
 <h2 id="running-tests">Running Tests<a class="headerlink" href="#running-tests" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>inv<span class="w"> </span>test.all
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>inv<span class="w"> </span><span class="nb">test</span>
 </span></code></pre></div>
 <p>This runs pytest with coverage and doctests enabled.</p>
 <h2 id="pre-commit-hooks">Pre-commit Hooks<a class="headerlink" href="#pre-commit-hooks" title="Permanent link">&para;</a></h2>
@@ -1779,7 +1779,7 @@
 <ol>
 <li>Create a feature branch from <code>main</code>.</li>
 <li>Make your changes with tests.</li>
-<li>Ensure <code>uv run inv qa.all</code> and <code>uv run inv test.all</code> pass.</li>
+<li>Ensure <code>uv run inv qa</code> and <code>uv run inv test</code> pass.</li>
 <li>Open a PR against <code>main</code>.</li>
 </ol>
 

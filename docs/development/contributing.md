@@ -14,13 +14,13 @@ The project uses **ruff** for formatting and linting (120-char lines) and
 **ty** for type checking:
 
 ```bash
-uv run inv qa.all
+uv run inv qa
 ```
 
 ## Running Tests
 
 ```bash
-uv run inv test.all
+uv run inv test
 ```
 
 This runs pytest with coverage and doctests enabled.
@@ -39,5 +39,5 @@ Hooks run ruff format/check, ty, and pytest automatically.
 
 1. Create a feature branch from `main`.
 2. Make your changes with tests.
-3. Ensure `uv run inv qa.all` and `uv run inv test.all` pass.
+3. Ensure `uv run inv qa` and `uv run inv test` pass.
 4. Open a PR against `main`.
